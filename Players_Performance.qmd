@@ -32,10 +32,10 @@ ggplot(
 ) +
 geom_point() +
 labs(
-x = "Age",
-y = "Points/Minute (pts/min)",
-color = "Player Position"
-
+  x = "Age",
+  y = "Points/Minute (pts/min)",
+  title = "Age vs Points/Minute",
+  color = "Player Position"
 )
 
 
@@ -54,6 +54,7 @@ geom_point() +
 labs(
 x = "Age",
 y = "Assists/Minute (ast/min)",
+title = "Age vs Assists/Minute",
 color = "Player Position"
 
 )
@@ -73,6 +74,7 @@ geom_point() +
 labs(
 x = "Age",
 y = "Offensive Rebounds/Minute (orb/min)",
+title = "Age vs Offensive Rebounds/Minute",
 color = "Player Position"
 
 )
@@ -92,6 +94,7 @@ geom_point() +
 labs(
 x = "Age",
 y = "Defensive Rebounds/Minute (drb/min)",
+title = "Age vs Defensive Rebounds/Minute",
 color = "Player Position"
 
 )
@@ -110,6 +113,7 @@ geom_point() +
 labs(
 x = "Age",
 y = "FG Percentage/Minute (fg %/min)",
+title = "Age vs FG Percentage/Minute",
 color = "Player Position"
 
 )
@@ -129,6 +133,7 @@ geom_point() +
 labs(
 x = "Age",
 y = "Turnovers/Minute (tov/min)",
+title = "Age vs Turnovers/Minute",
 color = "Player Position"
 
 )
