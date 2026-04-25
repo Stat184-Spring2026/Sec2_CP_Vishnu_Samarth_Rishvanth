@@ -1,0 +1,46 @@
+---
+title: "PlayersPerformance"
+format: pdf
+---
+```{r}
+
+#age vs pts 
+library(tidyverse)
+library(ggplot2)
+
+playersData <- read.csv("nba-player-stats-2021.csv")
+
+updt_data <-playersData |> filter(pos == 'PG' | pos == 'SG') |> select(player, pos, age, mp, pts, ast, orb, drb, fgpercent, tov) |> filter(mp > 500)
+
+
+
+cols <- c("pts", "ast", "orb", "drb", "fgpercent", "tov")
+
+for (colname in cols) {
+  updt_data[[colname]] <- round(updt_data[[colname]] / updt_data[["mp"]], 6)
+}
+
+updt_data <- head(updt_data, 100)
+
+ggplot(
+    data = updt_data,
+    mapping = aes(
+    x = age,
+    y = pts,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+x = "Age",
+y = "Points/Minute (pts/min)",
+color = "Player Position"
+
+)
+
+```
+
+
+
+
+
