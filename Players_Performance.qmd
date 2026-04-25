@@ -38,6 +38,102 @@ color = "Player Position"
 
 )
 
+
+#age vs assists 
+
+
+ggplot(
+    data = updt_data,
+    mapping = aes(
+    x = age,
+    y = ast,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+x = "Age",
+y = "Assists/Minute (ast/min)",
+color = "Player Position"
+
+)
+
+
+# age vs orb
+
+ggplot(
+    data = updt_data,
+    mapping = aes(
+    x = age,
+    y = orb,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+x = "Age",
+y = "Offensive Rebounds/Minute (orb/min)",
+color = "Player Position"
+
+)
+
+## age vs drb
+
+
+ggplot(
+    data = updt_data,
+    mapping = aes(
+    x = age,
+    y = drb,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+x = "Age",
+y = "Defensive Rebounds/Minute (drb/min)",
+color = "Player Position"
+
+)
+
+## age vs fg percentage 
+
+ggplot(
+    data = updt_data,
+    mapping = aes(
+    x = age,
+    y = fgpercent,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+x = "Age",
+y = "FG Percentage/Minute (fg %/min)",
+color = "Player Position"
+
+)
+
+## age vs tov
+
+
+ggplot(
+    data = updt_data,
+    mapping = aes(
+    x = age,
+    y = tov,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+x = "Age",
+y = "Turnovers/Minute (tov/min)",
+color = "Player Position"
+
+)
+
+
 ```
 
 
