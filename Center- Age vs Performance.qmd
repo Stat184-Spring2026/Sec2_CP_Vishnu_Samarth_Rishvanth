@@ -24,6 +24,23 @@ for (colname in cols) {
 
 modified <- head(modified, 100)
 
+ggplot(
+    data = modified,
+    mapping = aes(
+    x = age,
+    y = pts,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+  x = "Age",
+  y = "Points/Minute (pts/min)",
+  title = "Age vs Points per Minute",
+  color = "Player Position"
+)
+
+
 
 
 ```
