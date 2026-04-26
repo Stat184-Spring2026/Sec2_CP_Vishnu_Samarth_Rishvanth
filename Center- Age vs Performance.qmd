@@ -69,5 +69,95 @@ color = "Player Position"
 
 
 ```{r}
+
+#age vs Offensive Rebounds
+
+ggplot(
+    data = modified,
+    mapping = aes(
+    x = age,
+    y = orb,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+x = "Age",
+y = "Offensive Rebounds/Minute (orb/min)",
+title = "Age vs Offensive Rebounds per Minute",
+color = "Player Position"
+) + theme( plot.title = element_text(hjust = 0.5)
+  )
+
 ```
+
+
+```{r}
+#age vs Defensive Rebounds
+
+ggplot(
+    data = modified,
+    mapping = aes(
+    x = age,
+    y = drb,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+x = "Age",
+y = "Defensive Rebounds/Minute (drb/min)",
+title = "Age vs Defensive Rebounds per Minute",
+color = "Player Position"
+
+) + theme( plot.title = element_text(hjust = 0.5)
+  )
+
+```
+
+```{r}
+#age vs Field Goal Percentage
+ggplot(
+    data = modified,
+    mapping = aes(
+    x = age,
+    y = fgpercent,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+x = "Age",
+y = "FG  Percentage/Minute (fg%/min)",
+title = "Age vs Field Goal Percentage per Minute",
+color = "Player Position"
+
+) + theme( plot.title = element_text(hjust = 0.5)
+  )
+
+```
+
+```{r}
+#age vs Turnovers
+
+ggplot(
+    data = modified,
+    mapping = aes(
+    x = age,
+    y = tov,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+x = "Age",
+y = "Turnovers/Minute (tov/min)",
+title = "Age vs Turnovers per Minute",
+color = "Player Position"
+
+) + theme( plot.title = element_text(hjust = 0.5)
+  )
+
+```
+
 
