@@ -1,0 +1,29 @@
+---
+title: "Center Position: Age vs Performance"
+format: pdf
+---
+
+
+
+```{r}
+#age vs points
+
+library(tidyverse)
+library(ggplot2)
+
+playerstats <- read.csv("nba-player-stats-2021.csv")
+
+modified <-playerstats |> filter(pos == 'C') |> select(player, pos, age, mp, pts, ast, orb, drb, fgpercent, tov) |> filter(mp > 500)
+
+
+cols <- c("pts", "ast", "orb", "drb", "fgpercent", "tov")
+
+for (colname in cols) {
+  modified[[colname]] <- round(modified[[colname]] / modified[["mp"]], 6)
+}
+
+modified <- head(modified, 100)
+
+
+
+```
