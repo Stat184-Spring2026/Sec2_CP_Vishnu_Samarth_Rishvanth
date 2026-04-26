@@ -38,9 +38,36 @@ labs(
   y = "Points/Minute (pts/min)",
   title = "Age vs Points per Minute",
   color = "Player Position"
-)
-
-
+) + theme( plot.title = element_text(hjust = 0.5)
+  )
 
 
 ```
+
+```{r}
+#age vs assists
+
+
+ggplot(
+    data = modified,
+    mapping = aes(
+    x = age,
+    y = ast,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+x = "Age",
+y = "Assists/Minute (ast/min)",
+title = "Age vs Assists per Minute",
+color = "Player Position"
+
+) + theme( plot.title = element_text(hjust = 0.5)
+  )
+```
+
+
+```{r}
+```
+
