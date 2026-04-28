@@ -1,7 +1,7 @@
 
-#NBA Players Age VS Performance 
+# NBA Players Age VS Performance 
 
-##Plan 
+## Plan 
 
 1) Collaborate with group members and finalize a topic that follows all the project guidelines and demonstrates reflective and critical thinking. 
 We chose to analyze NBA players age and how it impacts their performance. 
