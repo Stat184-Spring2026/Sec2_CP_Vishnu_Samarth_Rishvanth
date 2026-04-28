@@ -1,0 +1,34 @@
+---
+title: "Forward - Age vs Performance"
+format: pdf
+---
+
+## Description of Analysis
+
+In this analysis, we investigate how age impacts the performance of players in the **Forward** position (including both Power Forwards and Small Forwards). To ensure a fair comparison between starters and bench players, we normalize all statistics by dividing them by total minutes played (`mp`). This creates a ratio that represents skill and efficiency per minute, eliminating the bias that comes from simply having more time on the court.
+
+We have limited our data set to the first 100 players who meet the criteria of playing at least 500 minutes during the season.
+
+```{r setup, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+
+# Load the dataset
+playerstats <- read.csv("nba-player-stats-2021.csv")
+
+# Filter for Forwards with at least 500 minutes played
+forward_data <- playerstats |> 
+  filter(pos == 'PF' | pos == 'SF') |> 
+  filter(mp > 500) |>
+  select(player, pos, age, mp, pts, orb, drb, ast, fgpercent, tov)
+
+# Normalize the tracked statistics by minutes played
+cols_to_normalize <- c("pts", "orb", "drb", "ast", "fgpercent", "tov")
+
+for (colname in cols_to_normalize) {
+  forward_data[[colname]] <- round(forward_data[[colname]] / forward_data[["mp"]], 6)
+}
+
+# Limit to the first 100 players
+forward_data <- head(forward_data, 100)
+
