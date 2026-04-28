@@ -31,13 +31,15 @@ for (colname in cols_to_normalize) {
 
 # Limit to the first 100 players
 forward_data <- head(forward_data, 100)
+```
 
-Performance Visualizations
+## Performance Visualizations
+
 Each point on the graphs below represents an individual player, categorized by their specific forward designation (PF or SF).
 
-1. Points Scored vs Age
+### 1. Points Scored vs Age
 
-Code snippet
+```{r}
 ggplot(data = forward_data, mapping = aes(x = age, y = pts, color = pos)) +
   geom_point() +
   labs(
@@ -48,12 +50,13 @@ ggplot(data = forward_data, mapping = aes(x = age, y = pts, color = pos)) +
   ) + 
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
-  
-Caption: Points scored per minute relative to player age, showing scoring efficiency.
+```
 
-2. Offensive Rebounds vs Age
+*Points scored per minute relative to player age, showing scoring efficiency.*
 
-Code snippet
+### 2. Offensive Rebounds vs Age
+
+```{r}
 ggplot(data = forward_data, mapping = aes(x = age, y = orb, color = pos)) +
   geom_point() +
   labs(
@@ -64,12 +67,13 @@ ggplot(data = forward_data, mapping = aes(x = age, y = orb, color = pos)) +
   ) + 
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
+```
 
-Caption: Tracking how aggressive forwards are on the offensive glass as they age.
+*Tracking how aggressive forwards are on the offensive glass as they age.*
 
-3. Defensive Rebounds vs Age
+### 3. Defensive Rebounds vs Age
 
-Code snippet
+```{r}
 ggplot(data = forward_data, mapping = aes(x = age, y = drb, color = pos)) +
   geom_point() +
   labs(
@@ -80,12 +84,13 @@ ggplot(data = forward_data, mapping = aes(x = age, y = drb, color = pos)) +
   ) + 
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
+```
 
-Caption: Defensive rebounding efficiency across different age groups.
+*Defensive rebounding efficiency across different age groups.*
 
-4. Assists vs Age
+### 4. Assists vs Age
 
-Code snippet
+```{r}
 ggplot(data = forward_data, mapping = aes(x = age, y = ast, color = pos)) +
   geom_point() +
   labs(
@@ -96,12 +101,13 @@ ggplot(data = forward_data, mapping = aes(x = age, y = ast, color = pos)) +
   ) + 
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
+```
 
-Caption: Analyzing the playmaking ability of forwards relative to their experience level.
+*Analyzing the playmaking ability of forwards relative to their experience level.*
 
-5. Field Goal Percentage vs Age
+### 5. Field Goal Percentage vs Age
 
-Code snippet
+```{r}
 ggplot(data = forward_data, mapping = aes(x = age, y = fgpercent, color = pos)) +
   geom_point() +
   labs(
@@ -112,5 +118,37 @@ ggplot(data = forward_data, mapping = aes(x = age, y = fgpercent, color = pos)) 
   ) + 
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
+```
 
-Caption: Shooting efficiency normalized by playtime.
+*Shooting efficiency normalized by playtime.*
+
+### 6. Turnovers vs Age
+
+```{r}
+ggplot(data = forward_data, mapping = aes(x = age, y = tov, color = pos)) +
+  geom_point() +
+  labs(
+    x = "Age",
+    y = "Turnovers / Minute",
+    title = "Age vs Turnovers per Minute",
+    color = "Position"
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+*Ball security trends in forwards as they progress through their careers.*
+
+## Discussion of Findings
+
+Upon analyzing the data for Forwards, several key trends emerge:
+
+**Efficiency and Age:** Scoring efficiency (Points/Minute) remains relatively stable throughout the mid-20s, with a slight peak in the late 20s. This suggests that Forwards maintain their scoring utility even as their pure athleticism might begin to transition.
+
+**Rebounding Trends:** We notice that Power Forwards (PF) generally maintain higher offensive and defensive rebounding ratios compared to Small Forwards (SF) across almost all ages, which aligns with their traditional roles closer to the basket.
+
+**Playmaking Growth:** There appears to be a slight upward trend in assists per minute as players reach their early 30s. This may indicate that veteran forwards develop better court vision and passing skills to compensate for changes in physical speed.
+
+**Ball Security:** Turnovers per minute show a wide variance among younger players, while older players tend to cluster more tightly, potentially indicating more disciplined play or more specialized roles as they age.
+
+Overall, the normalization by minutes played allows us to see that a Forward's value is not just a product of how long they are on the floor, but how effectively they use that time at different stages of their career.
