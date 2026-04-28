@@ -83,3 +83,34 @@ ggplot(data = forward_data, mapping = aes(x = age, y = drb, color = pos)) +
 
 Caption: Defensive rebounding efficiency across different age groups.
 
+4. Assists vs Age
+
+Code snippet
+ggplot(data = forward_data, mapping = aes(x = age, y = ast, color = pos)) +
+  geom_point() +
+  labs(
+    x = "Age",
+    y = "Assists / Minute",
+    title = "Age vs Assists per Minute",
+    color = "Position"
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+Caption: Analyzing the playmaking ability of forwards relative to their experience level.
+
+5. Field Goal Percentage vs Age
+
+Code snippet
+ggplot(data = forward_data, mapping = aes(x = age, y = fgpercent, color = pos)) +
+  geom_point() +
+  labs(
+    x = "Age",
+    y = "FG% / Minute",
+    title = "Age vs Field Goal Percentage per Minute",
+    color = "Position"
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+Caption: Shooting efficiency normalized by playtime.
