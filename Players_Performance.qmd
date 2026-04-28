@@ -7,6 +7,7 @@ format: pdf
 #age vs pts 
 library(tidyverse)
 library(ggplot2)
+library(kableExtra)
 
 playersData <- read.csv("nba-player-stats-2021.csv")
 
@@ -137,6 +138,13 @@ title = "Age vs Turnovers/Minute",
 color = "Player Position"
 
 )
+
+updt_data |> 
+  kable() |> 
+  kableExtra::kable_classic()
+
+
+View(updt_data)
 
 
 ```
