@@ -32,3 +32,21 @@ for (colname in cols_to_normalize) {
 # Limit to the first 100 players
 forward_data <- head(forward_data, 100)
 
+Performance Visualizations
+Each point on the graphs below represents an individual player, categorized by their specific forward designation (PF or SF).
+
+1. Points Scored vs Age
+
+Code snippet
+ggplot(data = forward_data, mapping = aes(x = age, y = pts, color = pos)) +
+  geom_point() +
+  labs(
+    x = "Age",
+    y = "Points / Minute",
+    title = "Age vs Points per Minute",
+    color = "Position"
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+  
+Caption: Points scored per minute relative to player age, showing scoring efficiency.
