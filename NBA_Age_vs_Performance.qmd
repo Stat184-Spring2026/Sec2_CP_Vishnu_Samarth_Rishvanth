@@ -1,0 +1,512 @@
+---
+title: "NBA Age vs. Performance: A Cross-Position Analysis"
+author: "Rishvanth Amsaraj, Vishnu Bombesetti, Samarth Puri"
+date: "2026-04-28"
+format:
+  pdf:
+    toc: true
+    number-sections: true
+    fig-pos: "H"
+    geometry: margin=1in
+    fontsize: 11pt
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+\newpage
+
+```{r setup}
+# Style Guide: Tidyverse Style Guide (https://style.tidyverse.org/)
+# Primary Authors: Rishvanth Amsaraj, Vishnu Bombesetti, Samarth Puri
+# Reviewer: All team members
+
+library(tidyverse)
+library(ggplot2)
+library(patchwork)
+library(knitr)
+library(kableExtra)
+
+# Helper: builds a single scatter plot panel
+make_panel <- function(df, y_var, y_label, panel_title) {
+  ggplot(df, aes(x = age, y = .data[[y_var]], color = pos)) +
+    geom_point(alpha = 0.75, size = 1.6) +
+    labs(
+      title  = panel_title,
+      x      = "Age",
+      y      = y_label,
+      color  = "Position"
+    ) +
+    theme_minimal(base_size = 9) +
+    theme(
+      plot.title      = element_text(hjust = 0.5, size = 9, face = "bold"),
+      legend.position = "bottom",
+      legend.key.size = unit(0.35, "cm"),
+      legend.text     = element_text(size = 7),
+      legend.title    = element_text(size = 7)
+    )
+}
+
+# Helper: assembles a 2x3 patchwork figure for a position group
+make_position_figure <- function(df) {
+  p1 <- make_panel(df, "pts",       "Points / Min",        "Points")
+  p2 <- make_panel(df, "ast",       "Assists / Min",       "Assists")
+  p3 <- make_panel(df, "orb",       "Off. Rebounds / Min", "Off. Rebounds")
+  p4 <- make_panel(df, "drb",       "Def. Rebounds / Min", "Def. Rebounds")
+  p5 <- make_panel(df, "fgpercent", "FG% / Min",           "Field Goal %")
+  p6 <- make_panel(df, "tov",       "Turnovers / Min",     "Turnovers")
+
+  ((p1 | p2) / (p3 | p4) / (p5 | p6)) +
+    plot_layout(guides = "collect") &
+    theme(legend.position = "bottom")
+}
+```
+
+# Introduction
+
+This report looks at how NBA player age relates to on-court performance across
+three position groups: Guards (Point Guards and Shooting Guards), Forwards
+(Power Forwards and Small Forwards), and Centers. We use data from the 2020--21
+NBA season (Basketball Reference, 2021) and track six statistics: points,
+assists, offensive rebounds, defensive rebounds, field goal percentage, and
+turnovers.
+
+Rather than using raw totals, we divide every stat by minutes played. This
+gives a per-minute rate that makes it fair to compare players who get very
+different amounts of playing time. The goal is to explore how these per-minute
+rates change with age for each position group.
+
+# Data and Methods
+
+## Data Source
+
+The data comes from `nba-player-stats-2021.csv`, a publicly available dataset
+of NBA player statistics for the 2020--21 season (Basketball Reference, 2021).
+It contains season totals for each player, and we use the following columns:
+`age`, `pos`, `mp` (minutes played), `pts`, `ast`, `orb`, `drb`, `fgpercent`,
+and `tov`.
+
+## Player Selection Criteria
+
+We only included players with more than 500 minutes played in the season. This
+cuts out players with very limited playtime, whose per-minute numbers can be
+all over the place. Within each position group the data is also capped at the
+first 100 qualifying players to keep things consistent across groups.
+
+## Per-Minute Normalization
+
+Each counting stat (points, assists, rebounds, and turnovers) is divided by
+minutes played and rounded to six decimal places. Field goal percentage is
+handled the same way. The same process is applied to all three position groups
+using the same code, so the comparison across groups is consistent.
+
+## Analysis Paradigm {#sec-paradigm}
+
+This analysis uses an **Exploratory Data Analysis (EDA)** approach (Tukey,
+1977). We are not testing a specific hypothesis --- we are using visualizations
+to look for patterns that might be worth studying more formally later. On the
+coding side, everything is written using the **Tidyverse** (Wickham et al.,
+2019), which we chose because the pipe operator and `ggplot2` make the code
+easy to read and the steps easy to follow.
+
+## PCIP Plan Summary
+
+The full PCIP plan is in Appendix 1. The four phases were: **Plan** (define the
+question and steps), **Code** (write the pipeline using the Tidyverse Style
+Guide), **Implement** (run and check the output), and **Present** (write the
+report with narrative, figures, and appendices).
+
+# Guards: Point Guards and Shooting Guards
+
+```{r guards-data}
+# Primary Author: Samarth Puri | Reviewer: Rishvanth Amsaraj
+
+playerstats <- read.csv("nba-player-stats-2021.csv")
+
+# Filter to PG and SG with > 500 minutes; select analysis columns
+guard_data <- playerstats |>
+  filter(pos == "PG" | pos == "SG") |>
+  filter(mp > 500) |>
+  select(player, pos, age, mp, pts, ast, orb, drb, fgpercent, tov)
+
+# Normalize each statistic by minutes played
+cols_to_normalize <- c("pts", "ast", "orb", "drb", "fgpercent", "tov")
+for (colname in cols_to_normalize) {
+  guard_data[[colname]] <- round(
+    guard_data[[colname]] / guard_data[["mp"]], 6
+  )
+}
+
+guard_data <- head(guard_data, 100)
+```
+
+Point Guards (PG) are mainly responsible for running the offense and setting up
+plays, while Shooting Guards (SG) focus more on scoring from the perimeter.
+Both spend most of their time on the outside of the court, so we would expect
+assists to be higher for PGs and scoring to be a priority for SGs.
+Figure\ @fig-guards shows how each per-minute stat looks across different ages
+for both guard types.
+
+```{r plot-guards}
+#| label: fig-guards
+#| fig-cap: "Age versus six per-minute performance metrics for NBA Guards (PG and SG) with at least 500 minutes played in the 2020--21 season. Each point represents one player, colored by position (PG = Point Guard, SG = Shooting Guard)."
+#| fig-alt: "A 2-by-3 grid of scatter plots. The x-axis of every panel shows player age roughly 18 to 38. The y-axes show from left to right and top to bottom: points per minute, assists per minute, offensive rebounds per minute, defensive rebounds per minute, field goal percentage per minute, and turnovers per minute. Points are colored by guard subtype."
+#| fig-width: 7
+#| fig-height: 8.5
+
+make_position_figure(guard_data)
+```
+
+Looking at Figure\ @fig-guards, scoring per minute is fairly spread out across
+ages in the mid-20s to early 30s, with PGs and SGs both showing up across the
+range. Assists tell a clearer story --- PGs are noticeably higher than SGs at
+most ages, which lines up with their role as playmakers. Offensive rebounds are
+low for both, since guards do not spend much time near the basket. Turnovers are
+more spread out among younger players and seem to settle down as players get
+older, which probably reflects that veterans are in more defined roles. Field
+goal percentage does not show a clear trend with age for either guard type.
+
+# Forwards: Power Forwards and Small Forwards
+
+```{r forwards-data}
+# Primary Author: Rishvanth Amsaraj | Reviewer: Vishnu Bombesetti
+
+# Filter to PF and SF with > 500 minutes; select analysis columns
+forward_data <- playerstats |>
+  filter(pos == "PF" | pos == "SF") |>
+  filter(mp > 500) |>
+  select(player, pos, age, mp, pts, ast, orb, drb, fgpercent, tov)
+
+# Normalize each statistic by minutes played
+for (colname in cols_to_normalize) {
+  forward_data[[colname]] <- round(
+    forward_data[[colname]] / forward_data[["mp"]], 6
+  )
+}
+
+forward_data <- head(forward_data, 100)
+```
+
+Power Forwards (PF) tend to play closer to the basket and focus on rebounding
+and inside scoring. Small Forwards (SF) are more versatile --- they can score
+from the perimeter and also get to the rim. Because these two roles use the
+court differently, it is interesting to see how age affects each one.
+Figure\ @fig-forwards shows the per-minute stats for both forward types.
+
+```{r plot-forwards}
+#| label: fig-forwards
+#| fig-cap: "Age versus six per-minute performance metrics for NBA Forwards (PF and SF) with at least 500 minutes played in the 2020--21 season. Each point represents one player, colored by position (PF = Power Forward, SF = Small Forward)."
+#| fig-alt: "A 2-by-3 grid of scatter plots. The x-axis of every panel shows player age roughly 18 to 38. The y-axes show from left to right and top to bottom: points per minute, assists per minute, offensive rebounds per minute, defensive rebounds per minute, field goal percentage per minute, and turnovers per minute. Points are colored by forward subtype."
+#| fig-width: 7
+#| fig-height: 8.5
+
+make_position_figure(forward_data)
+```
+
+Figure\ @fig-forwards shows that scoring per minute is fairly steady across the
+mid-20s, with slightly more high scorers in the 26--30 age range. Assists are
+lower for forwards than guards overall, but a few SFs in their late 20s stand
+out with higher assist numbers. Rebounding is where PFs and SFs differ the
+most: Power Forwards rebound at a higher rate than Small Forwards at almost
+every age, and that gap does not close as players get older. This suggests
+position role matters more than age when it comes to rebounding for forwards.
+Turnovers are more variable among younger players and get more consistent with
+age, similar to what we saw with guards.
+
+# Centers
+
+```{r centers-data}
+# Primary Author: Vishnu Bombesetti | Reviewer: Rishvanth Amsaraj
+
+# Filter to Centers with > 500 minutes; select analysis columns
+center_data <- playerstats |>
+  filter(pos == "C") |>
+  filter(mp > 500) |>
+  select(player, pos, age, mp, pts, ast, orb, drb, fgpercent, tov)
+
+# Normalize each statistic by minutes played
+for (colname in cols_to_normalize) {
+  center_data[[colname]] <- round(
+    center_data[[colname]] / center_data[["mp"]], 6
+  )
+}
+
+center_data <- head(center_data, 100)
+```
+
+Centers generally play near the basket. Their main jobs are rebounding,
+protecting the rim, and scoring inside. Because there is only one position
+label (C), all points in Figure\ @fig-centers are the same color, so the focus
+is entirely on how age relates to each stat.
+
+```{r plot-centers}
+#| label: fig-centers
+#| fig-cap: "Age versus six per-minute performance metrics for NBA Centers (C) with at least 500 minutes played in the 2020--21 season. Each point represents one player. All players share the same position label (C)."
+#| fig-alt: "A 2-by-3 grid of scatter plots. The x-axis of every panel shows player age roughly 18 to 38. The y-axes show from left to right and top to bottom: points per minute, assists per minute, offensive rebounds per minute, defensive rebounds per minute, field goal percentage per minute, and turnovers per minute. All points are the same color since all players are Centers."
+#| fig-width: 7
+#| fig-height: 8.5
+
+make_position_figure(center_data)
+```
+
+Figure\ @fig-centers shows that scoring per minute for centers is fairly
+compact, with most players between 0.4 and 0.8 points per minute and no strong
+age trend. Assists are the lowest of any position group, which makes sense
+since setting up plays is not usually a center's main job. Rebounding is
+noticeably higher than for guards or forwards (compare Figures\ @fig-guards and
+@fig-forwards), and there is a slight drop in defensive rebounds after the early
+30s, which could be related to slower movement as players age. Turnovers are a
+bit higher for younger centers and settle down over time, consistent with the
+same pattern seen for guards and forwards.
+
+# Cross-Position Discussion
+
+Looking across all three position groups, one pattern stands out: your position
+matters more than your age when it comes to most per-minute stats. Centers
+rebound more than forwards, who rebound more than guards, at every age. Guards
+--- especially Point Guards --- have far more assists than any other group.
+These differences hold steady as players get older.
+
+What does seem to change with age is how spread out the numbers are. Younger
+players at every position show a wider range of values --- some do really well
+early, others struggle. As players get older the numbers tend to cluster more
+tightly, which probably reflects that veterans settle into defined roles.
+
+Scoring per minute is also surprisingly stable across ages once you filter to
+players with at least 500 minutes. This likely happens because the 500-minute
+cutoff already removes players who are not getting consistent playing time,
+which screens out very young developmental players and older fringe players.
+
+These findings are exploratory. The data is from one season only, the top 100
+filter is not random, and things like team system and injuries also affect
+per-minute stats. Follow-up work could test these patterns more formally.
+
+# Reflection
+
+Working on this project showed us why normalizing stats matters. Raw totals can
+be misleading --- a player with more minutes will almost always have higher
+counting numbers, so dividing by minutes levels the comparison.
+
+Combining three separate files into one report also made us think about
+consistency. The original files used different variable names and formatting, so
+part of the work was standardizing everything so comparisons made sense. Using
+shared helper functions (`make_panel` and `make_position_figure`) helped with
+that --- instead of copying the same plot code multiple times, we wrote it once
+and reused it.
+
+Keeping all the code in the appendix and the body focused on findings also made
+the final report much cleaner to read.
+
+\newpage
+
+# Author Contributions {.unnumbered}
+
+**Rishvanth Amsaraj** --- Forwards analysis (data filtering, normalization, and
+figure), combining all three position files into the final QMD, patchwork
+figure layout, shared helper functions, narrative text, and PCIP documentation.
+
+**Vishnu Bombesetti** --- Centers analysis (data filtering, normalization, and
+figure), and the repository README.md file.
+
+**Samarth Puri** --- Guards analysis (data filtering, normalization, and
+figure), and the repository PLAN.md file.
+
+The overall analysis approach, filtering criteria, normalization method, and
+report structure were decided together as a team.
+
+\newpage
+
+# Appendix 1: PCIP Written Plan {.unnumbered}
+
+The PCIP System (Plan, Code, Implement, Present) was applied to both the data
+analysis and the coding work in this project.
+
+## Phase 1 --- Plan {.unnumbered}
+
+**Research question:** How does player age relate to six per-minute performance
+statistics across three NBA position groups (Guards, Forwards, Centers)?
+
+**Data source:** `nba-player-stats-2021.csv` --- 2020--21 NBA season, one row
+per player.
+
+**Issues identified:**
+
+- Stats are season totals, so players with more minutes look better without
+  normalization. Dividing by `mp` fixes this.
+- Some players have very few minutes, making their per-minute rates unreliable.
+  A 500-minute filter removes these cases.
+- The three original files used different variable names and inconsistent
+  formatting, which needed to be unified.
+
+**Steps planned:**
+
+1. Load `nba-player-stats-2021.csv` once in the setup chunk.
+2. Write shared `make_panel()` and `make_position_figure()` helpers to avoid
+   repeating plot code for each position group.
+3. For each group: filter by position and `mp > 500`, select the needed
+   columns, divide stats by `mp`, and cap at 100 rows.
+4. Produce a 2x3 patchwork figure per group with a shared legend.
+5. Write narrative for each section and a cross-position discussion.
+6. Set up YAML to match the assignment template (TOC, numbered sections,
+   1-inch margins, 11pt font, `echo: false` globally).
+7. Move all code to a Code Appendix.
+
+## Phase 2 --- Code {.unnumbered}
+
+All code follows the **Tidyverse Style Guide** (https://style.tidyverse.org/).
+Key practices:
+
+- Snake\_case for all variable names.
+- Pipe operator (`|>`) for data transformation steps.
+- Spaces around operators and after commas.
+- One `ggplot2` verb per line with consistent indentation.
+- Each chunk starts with a comment naming the primary author and reviewer.
+
+## Phase 3 --- Implement {.unnumbered}
+
+The code was run in R through Quarto. We checked that filtering produced the
+right rows for each position group, that all six figures rendered correctly,
+and that cross-references resolved properly in the PDF.
+
+## Phase 4 --- Present {.unnumbered}
+
+The final PDF was produced by rendering `NBA_Age_vs_Performance.qmd`. The
+report includes a table of contents, three cross-referenced figures with
+captions and alt text, narrative in every section, a cross-position discussion,
+a reflection, author contributions, this PCIP plan, and a code appendix.
+
+\newpage
+
+# Appendix 2: Code Appendix {.unnumbered}
+
+```{r code-appendix, echo=TRUE, eval=FALSE}
+# ==========================================================
+# Style Guide: Tidyverse Style Guide
+# https://style.tidyverse.org/
+# ==========================================================
+
+# ── Libraries ──────────────────────────────────────────────
+library(tidyverse)
+library(ggplot2)
+library(patchwork)
+library(knitr)
+library(kableExtra)
+
+# ── Helper: single scatter panel ──────────────────────────
+# Primary Authors: Rishvanth Amsaraj, Vishnu Bombesetti, Samarth Puri
+# Reviewer: All team members
+make_panel <- function(df, y_var, y_label, panel_title) {
+  ggplot(df, aes(x = age, y = .data[[y_var]], color = pos)) +
+    geom_point(alpha = 0.75, size = 1.6) +
+    labs(
+      title  = panel_title,
+      x      = "Age",
+      y      = y_label,
+      color  = "Position"
+    ) +
+    theme_minimal(base_size = 9) +
+    theme(
+      plot.title      = element_text(hjust = 0.5, size = 9, face = "bold"),
+      legend.position = "bottom",
+      legend.key.size = unit(0.35, "cm"),
+      legend.text     = element_text(size = 7),
+      legend.title    = element_text(size = 7)
+    )
+}
+
+# ── Helper: 2x3 patchwork figure for a position group ─────
+# Primary Authors: Rishvanth Amsaraj, Vishnu Bombesetti, Samarth Puri
+# Reviewer: All team members
+make_position_figure <- function(df) {
+  p1 <- make_panel(df, "pts",       "Points / Min",        "Points")
+  p2 <- make_panel(df, "ast",       "Assists / Min",       "Assists")
+  p3 <- make_panel(df, "orb",       "Off. Rebounds / Min", "Off. Rebounds")
+  p4 <- make_panel(df, "drb",       "Def. Rebounds / Min", "Def. Rebounds")
+  p5 <- make_panel(df, "fgpercent", "FG% / Min",           "Field Goal %")
+  p6 <- make_panel(df, "tov",       "Turnovers / Min",     "Turnovers")
+
+  ((p1 | p2) / (p3 | p4) / (p5 | p6)) +
+    plot_layout(guides = "collect") &
+    theme(legend.position = "bottom")
+}
+
+# ==========================================================
+# Section 3: Guards (PG and SG)
+# Primary Author: Samarth Puri | Reviewer: Rishvanth Amsaraj
+# ==========================================================
+playerstats <- read.csv("nba-player-stats-2021.csv")
+
+# Filter to guards with > 500 mp; select analysis columns
+guard_data <- playerstats |>
+  filter(pos == "PG" | pos == "SG") |>
+  filter(mp > 500) |>
+  select(player, pos, age, mp, pts, ast, orb, drb, fgpercent, tov)
+
+# Normalize each statistic by minutes played
+cols_to_normalize <- c("pts", "ast", "orb", "drb", "fgpercent", "tov")
+for (colname in cols_to_normalize) {
+  guard_data[[colname]] <- round(
+    guard_data[[colname]] / guard_data[["mp"]], 6
+  )
+}
+guard_data <- head(guard_data, 100)
+
+make_position_figure(guard_data)
+
+# ==========================================================
+# Section 4: Forwards (PF and SF)
+# Primary Author: Rishvanth Amsaraj | Reviewer: Vishnu Bombesetti
+# ==========================================================
+
+# Filter to forwards with > 500 mp; select analysis columns
+forward_data <- playerstats |>
+  filter(pos == "PF" | pos == "SF") |>
+  filter(mp > 500) |>
+  select(player, pos, age, mp, pts, ast, orb, drb, fgpercent, tov)
+
+# Normalize each statistic by minutes played
+for (colname in cols_to_normalize) {
+  forward_data[[colname]] <- round(
+    forward_data[[colname]] / forward_data[["mp"]], 6
+  )
+}
+forward_data <- head(forward_data, 100)
+
+make_position_figure(forward_data)
+
+# ==========================================================
+# Section 5: Centers (C)
+# Primary Author: Vishnu Bombesetti | Reviewer: Rishvanth Amsaraj
+# ==========================================================
+
+# Filter to centers with > 500 mp; select analysis columns
+center_data <- playerstats |>
+  filter(pos == "C") |>
+  filter(mp > 500) |>
+  select(player, pos, age, mp, pts, ast, orb, drb, fgpercent, tov)
+
+# Normalize each statistic by minutes played
+for (colname in cols_to_normalize) {
+  center_data[[colname]] <- round(
+    center_data[[colname]] / center_data[["mp"]], 6
+  )
+}
+center_data <- head(center_data, 100)
+
+make_position_figure(center_data)
+```
+
+## References {.unnumbered}
+
+Basketball Reference. (2021). *NBA player stats --- 2020--21 season* [Dataset].
+Retrieved from https://www.basketball-reference.com
+
+Tukey, J. W. (1977). *Exploratory data analysis*. Addison-Wesley.
+
+Wickham, H., Averick, M., Bryan, J., Chang, W., McGowan, L. D., François, R.,
+Grolemund, G., Hayes, A., Henry, L., Hester, J., Kuhn, M., Pedersen, T. L.,
+Miller, E., Bache, S. M., Müller, K., Ooms, J., Robinson, D., Seidel, D. P.,
+Spinu, V., Takahashi, K., Vaughan, D., Wilke, C., Woo, K., & Yutani, H. (2019).
+Welcome to the tidyverse. *Journal of Open Source Software*, *4*(43), 1686.
+https://doi.org/10.21105/joss.01686
