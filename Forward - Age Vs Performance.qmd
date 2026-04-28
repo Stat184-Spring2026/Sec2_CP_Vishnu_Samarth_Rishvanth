@@ -50,3 +50,36 @@ ggplot(data = forward_data, mapping = aes(x = age, y = pts, color = pos)) +
   theme(plot.title = element_text(hjust = 0.5))
   
 Caption: Points scored per minute relative to player age, showing scoring efficiency.
+
+2. Offensive Rebounds vs Age
+
+Code snippet
+ggplot(data = forward_data, mapping = aes(x = age, y = orb, color = pos)) +
+  geom_point() +
+  labs(
+    x = "Age",
+    y = "Offensive Rebounds / Minute",
+    title = "Age vs Offensive Rebounds per Minute",
+    color = "Position"
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+Caption: Tracking how aggressive forwards are on the offensive glass as they age.
+
+3. Defensive Rebounds vs Age
+
+Code snippet
+ggplot(data = forward_data, mapping = aes(x = age, y = drb, color = pos)) +
+  geom_point() +
+  labs(
+    x = "Age",
+    y = "Defensive Rebounds / Minute",
+    title = "Age vs Defensive Rebounds per Minute",
+    color = "Position"
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+Caption: Defensive rebounding efficiency across different age groups.
+
