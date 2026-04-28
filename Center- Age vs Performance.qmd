@@ -10,6 +10,7 @@ format: pdf
 
 library(tidyverse)
 library(ggplot2)
+library(kableExtra)
 
 playerstats <- read.csv("nba-player-stats-2021.csv")
 
@@ -160,4 +161,14 @@ color = "Player Position"
 
 ```
 
+
+## Table of all 100 Centers 
+```{r}
+modified |> 
+  kable() |> 
+  kableExtra::kable_classic()
+
+
+View(modified)
+```
 
