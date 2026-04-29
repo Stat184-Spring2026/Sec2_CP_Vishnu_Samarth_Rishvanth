@@ -14,15 +14,15 @@ offensive rebounds, defensive rebounds, fg_percent, and turnovers.
    Rish- Forwards (Small Forwards, Power Forwards)
    Vishnu- Centers
 6) Each group member should:
-  a) Load the tidyverse, ggplot2, KableExtra  
-  b) Perform any necessary data wrangling and tidying data. Specifically, use select() to choose the relavent columns and filter the data to include 
+  1) Load the tidyverse, ggplot2, KableExtra  
+  2) Perform any necessary data wrangling and tidying data. Specifically, use select() to choose the relavent columns and filter the data to include 
   rows by your tasked position.
-  c) To create a universal analysis on the impact on performance, divide each stat by minutes played to produce ratio. This ratio will represent each stat for 
+  3) To create a universal analysis on the impact on performance, divide each stat by minutes played to produce ratio. This ratio will represent each stat for 
   every minute played for a player. 
-  d) Only include 100 players in your data set
-  e) Use ggplot2 to create six data visualization plot. Each plot compares each relavent stat to age on a scatter plot. 
-  f) Use KableExtra to create an organized, structered, readable table. 
-  g) Each group member should commit several changes to their individual dev branch throughout the process to document progress and allow for collaboration.
+  4) Only include 100 players in your data set
+  5) Use ggplot2 to create six data visualization plot. Each plot compares each relavent stat to age on a scatter plot. 
+  6) Use KableExtra to create an organized, structered, readable table. 
+  7) Each group member should commit several changes to their individual dev branch throughout the process to document progress and allow for collaboration.
 7) Create a final QMD file that includes all every group member's work. In the end of the file, include a narrative text section to analyze data
   in the table/visual graphs. Make reflections and conclusions about how the collective statistical data by player and their age effect their performance. 
 8) Create a READme that summarizes our github repo. 
