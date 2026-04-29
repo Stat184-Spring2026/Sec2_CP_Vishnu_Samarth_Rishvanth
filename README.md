@@ -1,28 +1,32 @@
-# Project Title
+# Stat 184 Project- NBA Players Age vs Performance 
 
-Write a 1-2 sentences that quickly and clearly convey what your repo is for.
-
+This repository contains a collaborative statistical analysis of how player age relates to on-court performance in the National Basketball Association. 
 ## Overview
 
-Expand on those introductory sentences with a brief but informative description of your project's purpose and goals. This section should help visitors decide whether they should dig deeper into your repo/project.
-
-### Interesting Insight (Optional)
-
-This is optional but highly recommended. You'll include one interesting insight from your project as part of the README. This insight is most effective when you include a visual. Keep in mind that this visual must be included as an image file (e.g., JPG, PNG, etc.). You can export plots created with `{ggplot2}` by using the function `ggsave`.
-
+The project focuses on Guards, Forwards, and Centers during the 2020–21 season. 
+It includes data processing, analysis, and reporting of key performance metrics such as scoring, assists, rebounds, efficiency, and turnovers.
 ## Data Sources and Acknowledgements
 
-Be sure to list where you got any data used within the project. Be sure to acknowledge any one whose work or elements you're drawing upon.
+The data comes from `nba-player-stats-2021.csv`, a publicly available dataset
+of NBA player statistics for the 2020--21 season (Basketball Reference, 2021).
+It contains season totals for each player, and we use the following columns:
+`age`, `pos`, `mp` (minutes played), `pts`, `ast`, `orb`, `drb`, `fgpercent`,
+and `tov`.
 
 ## Current Plan
 
-Provide some information about what you intend to do with the project. You can additionally refer the visitor to your detailed plan document.
+The main goal for this project is to analyze the relationship between age and performance through mulitple visualizations to display our findings. 
+For additional details, please refer to the PLAN.md file.
+
 
 ## Repo Structure
 
-Use this section to explain the structure of your repo. This should help visitors quickly figure out where they should look to find certain elements. Further, you can use this space to highlight and briefly explain important/key files in the repo.
-
+We have organized this repository to clearly separate the data, analysis, and final report for the project on player performance in the NBA. 
+The dataset folder, nba-player-stats-2021.csv, contains the raw NBA player data used for analysis, while the main Quarto file, NBA_Age_vs_Performance.qmd, includes the full code, analysis, and visualizations used in the report. 
+The compiled PDF version of the QMD file, NBA_Age_vs_Performance.pdf, provides the final polished report, ultimately incorporating all of our contributions in a professional looking output. For additional details, you can refer to the PLAN.md file.
 
 ## Authors
 
-Give information about who are the authors of the project and how people can get in touch if they have questions.
+Vishnu Bommisetty: vbb5176@psu.edu
+Samarth Puri: sjp6731@psu.edu
+Rishvanth Amsaraj: rva5593@psu.edu
