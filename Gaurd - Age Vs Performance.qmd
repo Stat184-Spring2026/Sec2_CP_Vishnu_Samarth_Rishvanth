@@ -1,0 +1,155 @@
+---
+title: "PlayersPerformance"
+format: pdf
+---
+```{r}
+
+#age vs pts 
+library(tidyverse)
+library(ggplot2)
+library(kableExtra)
+
+playersData <- read.csv("nba-player-stats-2021.csv")
+
+updt_data <-playersData |> filter(pos == 'PG' | pos == 'SG') |> select(player, pos, age, mp, pts, ast, orb, drb, fgpercent, tov) |> filter(mp > 500)
+
+
+
+cols <- c("pts", "ast", "orb", "drb", "fgpercent", "tov")
+
+for (colname in cols) {
+  updt_data[[colname]] <- round(updt_data[[colname]] / updt_data[["mp"]], 6)
+}
+
+updt_data <- head(updt_data, 100)
+
+ggplot(
+    data = updt_data,
+    mapping = aes(
+    x = age,
+    y = pts,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+  x = "Age",
+  y = "Points/Minute (pts/min)",
+  title = "Age vs Points/Minute",
+  color = "Player Position"
+)
+
+
+#age vs assists 
+
+
+ggplot(
+    data = updt_data,
+    mapping = aes(
+    x = age,
+    y = ast,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+x = "Age",
+y = "Assists/Minute (ast/min)",
+title = "Age vs Assists/Minute",
+color = "Player Position"
+
+)
+
+
+# age vs orb
+
+ggplot(
+    data = updt_data,
+    mapping = aes(
+    x = age,
+    y = orb,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+x = "Age",
+y = "Offensive Rebounds/Minute (orb/min)",
+title = "Age vs Offensive Rebounds/Minute",
+color = "Player Position"
+
+)
+
+## age vs drb
+
+
+ggplot(
+    data = updt_data,
+    mapping = aes(
+    x = age,
+    y = drb,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+x = "Age",
+y = "Defensive Rebounds/Minute (drb/min)",
+title = "Age vs Defensive Rebounds/Minute",
+color = "Player Position"
+
+)
+
+## age vs fg percentage 
+
+ggplot(
+    data = updt_data,
+    mapping = aes(
+    x = age,
+    y = fgpercent,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+x = "Age",
+y = "FG Percentage/Minute (fg %/min)",
+title = "Age vs FG Percentage/Minute",
+color = "Player Position"
+
+)
+
+## age vs tov
+
+
+ggplot(
+    data = updt_data,
+    mapping = aes(
+    x = age,
+    y = tov,
+    color = pos
+  )
+) +
+geom_point() +
+labs(
+x = "Age",
+y = "Turnovers/Minute (tov/min)",
+title = "Age vs Turnovers/Minute",
+color = "Player Position"
+
+)
+
+updt_data |> 
+  kable() |> 
+  kableExtra::kable_classic()
+
+
+View(updt_data)
+
+
+```
+
+
+
+
+
