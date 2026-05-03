@@ -1,0 +1,145 @@
+---
+title: "Forward - Age vs Performance"
+format: pdf
+---
+
+## Filters of Analysis
+
+We have limited our data set to the first 100 players who meet the criteria of playing at least 500 minutes during the season.
+
+```{r setup, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+
+# Load the dataset
+playerstats <- read.csv("nba-player-stats-2021.csv")
+
+# Filter for Forwards with at least 500 minutes played
+forward_data <- playerstats |> 
+  filter(pos == 'PF' | pos == 'SF') |> 
+  filter(mp > 500) |>
+  select(player, pos, age, mp, pts, orb, drb, ast, fgpercent, tov)
+
+# Normalize the tracked statistics by minutes played
+cols_to_normalize <- c("pts", "orb", "drb", "ast", "fgpercent", "tov")
+
+for (colname in cols_to_normalize) {
+  forward_data[[colname]] <- round(forward_data[[colname]] / forward_data[["mp"]], 6)
+}
+
+# Limit to the first 100 players
+forward_data <- head(forward_data, 100)
+```
+
+## Performance Visualizations
+
+Each point on the graphs below represents an individual player, categorized by their specific forward designation (PF or SF).
+
+### 1. Points Scored vs Age
+
+```{r}
+ggplot(data = forward_data, mapping = aes(x = age, y = pts, color = pos)) +
+  geom_point() +
+  labs(
+    x = "Age",
+    y = "Points / Minute",
+    title = "Age vs Points per Minute",
+    color = "Position"
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+*Points scored per minute relative to player age, showing scoring efficiency.*
+
+### 2. Offensive Rebounds vs Age
+
+```{r}
+ggplot(data = forward_data, mapping = aes(x = age, y = orb, color = pos)) +
+  geom_point() +
+  labs(
+    x = "Age",
+    y = "Offensive Rebounds / Minute",
+    title = "Age vs Offensive Rebounds per Minute",
+    color = "Position"
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+*Tracking how aggressive forwards are on the offensive glass as they age.*
+
+### 3. Defensive Rebounds vs Age
+
+```{r}
+ggplot(data = forward_data, mapping = aes(x = age, y = drb, color = pos)) +
+  geom_point() +
+  labs(
+    x = "Age",
+    y = "Defensive Rebounds / Minute",
+    title = "Age vs Defensive Rebounds per Minute",
+    color = "Position"
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+*Defensive rebounding efficiency across different age groups.*
+
+### 4. Assists vs Age
+
+```{r}
+ggplot(data = forward_data, mapping = aes(x = age, y = ast, color = pos)) +
+  geom_point() +
+  labs(
+    x = "Age",
+    y = "Assists / Minute",
+    title = "Age vs Assists per Minute",
+    color = "Position"
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+*Analyzing the playmaking ability of forwards relative to their experience level.*
+
+### 5. Field Goal Percentage vs Age
+
+```{r}
+ggplot(data = forward_data, mapping = aes(x = age, y = fgpercent, color = pos)) +
+  geom_point() +
+  labs(
+    x = "Age",
+    y = "FG% / Minute",
+    title = "Age vs Field Goal Percentage per Minute",
+    color = "Position"
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+*Shooting efficiency normalized by playtime.*
+
+### 6. Turnovers vs Age
+
+```{r}
+ggplot(data = forward_data, mapping = aes(x = age, y = tov, color = pos)) +
+  geom_point() +
+  labs(
+    x = "Age",
+    y = "Turnovers / Minute",
+    title = "Age vs Turnovers per Minute",
+    color = "Position"
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+*Ball security trends in forwards as they progress through their careers.*
+
+## Table of all 100 Forwards
+```{r}
+forward_data |> 
+  knitr::kable() |> 
+  kableExtra::kable_classic()
+```
