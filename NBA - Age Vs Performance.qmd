@@ -30,13 +30,14 @@ library(kableExtra)
 
 # Helper: builds a single scatter plot panel
 make_panel <- function(df, y_var, y_label, panel_title) {
-  ggplot(df, aes(x = age, y = .data[[y_var]], color = pos)) +
+  ggplot(df, aes(x = age, y = .data[[y_var]], color = pos, shape = pos)) +
     geom_point(alpha = 0.75, size = 1.6) +
     labs(
       title  = panel_title,
       x      = "Age",
       y      = y_label,
-      color  = "Position"
+      color  = "Position",
+      shape  = "Position"
     ) +
     theme_minimal(base_size = 9) +
     theme(
@@ -65,9 +66,9 @@ make_position_figure <- function(df) {
 
 # Introduction
 
-This report looks at how NBA player age relates to performance across three position groups: Guards (Point Guards and Shooting Guards), Forwards (Power Forwards and Small Forwards), and Centers. We used data from the 2020–21 NBA season (Basketball Reference, 2021) and tracked six statistics: points, assists, offensive rebounds, defensive rebounds, field goal percentage, and turnovers.
+This report looks at how NBA player age relates to on-court performance across three position groups:Guards (Point Guards and Shooting Guards), Forwards (Power Forwards and Small Forwards),and Centers. We use data from the 2020–21 NBA season (Basketball Reference, 2021) and track six statistics: points, assists, offensive rebounds, defensive rebounds, field goal percentage, and turnovers.
 
-Rather than using the raw totals, we divide every stat by minutes played. This gives a per-minute rate that makes it fair to compare players who get very different amounts of playing time. The goal is to explore how these per-minute rates change with age for each position group.
+Rather than using raw totals, we divide every stat by minutes played. This gives a per-minute rate that makes it fair to compare players who get very different amounts of playing time. The goal is to explore how these per-minute rates change with age for each position group.
 
 # Data and Methods
 
@@ -75,39 +76,47 @@ Rather than using the raw totals, we divide every stat by minutes played. This g
 
 The data comes from `nba-player-stats-2021.csv`, a publicly available dataset
 of NBA player statistics for the 2020--21 season (Basketball Reference, 2021).
-It contains season totals for each player, and we use the following columns:
-`age`, `pos`, `mp` (minutes played), `pts`, `ast`, `orb`, `drb`, `fgpercent`,
-and `tov`.
+Each case is a single NBA player's season record. The attributes used are:
+`age` (years), `pos` (position: PG, SG, PF, SF, or C), `mp` (total minutes
+played), `pts` (points), `ast` (assists), `orb` (offensive rebounds), `drb`
+(defensive rebounds), `fgpercent` (field goal percentage, 0 to 1), and `tov`
+(turnovers). After normalization, all counting stats are rates per minute.
 
 ## Player Selection Criteria
 
-We only included players with more than 500 minutes played in the season. This
-cuts out players with very limited playtime, whose per-minute numbers can be
-all over the place. Within each position group the data is also capped at the
-first 100 qualifying players to keep things consistent across groups.
+Players with fewer than 500 minutes played were excluded to avoid unreliable
+per-minute rates. Each position group is capped at the first 100 qualifying
+players.
+
+## FAIR and CARE Principles
+
+The dataset satisfies the **FAIR** principles: it is publicly Findable and
+Accessible via Basketball Reference, stored in a standard CSV format
+(Interoperable), with clear column naming (Reusable). Applying the **CARE**
+principles is more challenging, as these guidelines target Indigenous data
+sovereignty. One challenge is that players had no input into how their
+statistics are collected or used in third-party analyses.
 
 ## Per-Minute Normalization
 
-Each counting stat (points, assists, rebounds, and turnovers) is divided by
-minutes played and rounded to six decimal places. Field goal percentage is
-handled the same way. The same process is applied to all three position groups
-using the same code, so the comparison across groups is consistent.
+Each counting stat (points, assists, rebounds, turnovers) and field goal
+percentage are divided by minutes played and rounded to six decimal places.
+The same process is applied consistently across all three position groups.
 
 ## Analysis Paradigm {#sec-paradigm}
 
 This analysis uses an **Exploratory Data Analysis (EDA)** approach (Tukey,
-1977). We are not testing a specific hypothesis --- we are using visualizations
-to look for patterns that might be worth studying more formally later. On the
-coding side, everything is written using the **Tidyverse** (Wickham et al.,
-2019), which we chose because the pipe operator and `ggplot2` make the code
-easy to read and the steps easy to follow.
+1977) --- we use visualizations to look for patterns rather than test a
+specific hypothesis. All code is written using the **Tidyverse** (Wickham
+et al., 2019), chosen because the pipe operator and `ggplot2` produce
+readable, step-by-step code.
 
 ## PCIP Plan Summary
 
-The full PCIP plan is in Appendix 1. The four phases were: **Plan** (define the
-question and steps), **Code** (write the pipeline using the Tidyverse Style
-Guide), **Implement** (run and check the output), and **Present** (write the
-report with narrative, figures, and appendices).
+The full PCIP plan is in Appendix 1. The four phases were: **Plan** (define
+the question and steps), **Code** (write the pipeline following the Tidyverse
+Style Guide), **Implement** (run and verify output), and **Present** (write
+the report with figures and appendices).
 
 # Guards: Point Guards and Shooting Guards
 
@@ -115,6 +124,9 @@ report with narrative, figures, and appendices).
 # Primary Author: Samarth Puri | Reviewer: Rishvanth Amsaraj
 
 playerstats <- read.csv("nba-player-stats-2021.csv")
+
+# Check structure and dimensions immediately after import
+glimpse(playerstats)
 
 # Filter to PG and SG with > 500 minutes; select analysis columns
 guard_data <- playerstats |>
@@ -124,11 +136,8 @@ guard_data <- playerstats |>
 
 # Normalize each statistic by minutes played
 cols_to_normalize <- c("pts", "ast", "orb", "drb", "fgpercent", "tov")
-for (colname in cols_to_normalize) {
-  guard_data[[colname]] <- round(
-    guard_data[[colname]] / guard_data[["mp"]], 6
-  )
-}
+guard_data <- guard_data |>
+  mutate(across(all_of(cols_to_normalize), ~ round(. / mp, 6)))
 
 guard_data <- head(guard_data, 100)
 ```
@@ -150,11 +159,33 @@ for both guard types.
 make_position_figure(guard_data)
 ```
 
-Looking at Figure\ @fig-guards, midway through their twenties into their thirties, guards display varied scoring rates per minute, seen clearly in both point and shooting categories. While one might expect sharp differences, the data shows overlap instead. Notably, assists diverge - point guards consistently record higher numbers, matching expectations of them as primary creators. Unlike forwards, these backcourt players rarely collect offensive boards, given their positioning farther from the rim. Among younger cohorts, turnover counts scatter widely, yet they tighten with advancing age, perhaps due to greater experience shaping consistent responsibilities. Efficiency, measured by field goal accuracy, stays mostly flat across years for each group, without distinct peaks or declines.
+Looking at Figure\ @fig-guards, midway through their twenties into their thirties, guards display varied scoring rates per minute, seen clearly in both point and shooting categories. While one might expect sharp differences, the data shows overlap instead. Notably, assists diverge - point guards consistently record higher numbers, matching expectations of them as primary creators. Unlike forwards, these backcourt players rarely collect offensive boards, given their positioning farther from the rim. Among younger cohorts, turnover counts scatter widely, yet they tighten with advancing age, perhaps due to greater experience shaping consistent responsibilities. Efficiency, measured by field goal accuracy, stays mostly flat across years for each group, without distinct peaks or declines. Table\ @tbl-guard-summary shows mean and standard deviation for each per-minute stat across all 100 guards, and Table\ @tbl-guards lists the full player-level data.
+
+## Summary Statistics for Guards
+
+```{r tbl-guard-summary}
+#| label: tbl-guard-summary
+#| tbl-cap: "Mean and standard deviation of per-minute statistics for the 100 guards included in the analysis."
+guard_data |>
+  select(age, all_of(cols_to_normalize)) |>
+  summarise(across(everything(), list(Mean = mean, SD = sd))) |>
+  pivot_longer(
+    everything(),
+    names_to  = c("Variable", ".value"),
+    names_sep = "_"
+  ) |>
+  kable(booktabs = TRUE, digits = 4, linesep = "") |>
+  kable_styling(
+    latex_options = c("hold_position"),
+    font_size = 8
+  )
+```
 
 ## Table of Guards Used in Analysis
 
 ```{r tbl-guards}
+#| label: tbl-guards
+#| tbl-cap: "Per-minute statistics for all 100 guards (PG and SG) included in the analysis."
 guard_data |>
   kable(booktabs = TRUE) |>
   kable_styling(
@@ -175,11 +206,8 @@ forward_data <- playerstats |>
   select(player, pos, age, mp, pts, ast, orb, drb, fgpercent, tov)
 
 # Normalize each statistic by minutes played
-for (colname in cols_to_normalize) {
-  forward_data[[colname]] <- round(
-    forward_data[[colname]] / forward_data[["mp"]], 6
-  )
-}
+forward_data <- forward_data |>
+  mutate(across(all_of(cols_to_normalize), ~ round(. / mp, 6)))
 
 forward_data <- head(forward_data, 100)
 ```
@@ -200,11 +228,33 @@ Figure\ @fig-forwards shows the per-minute stats for both forward types.
 make_position_figure(forward_data)
 ```
 
-Figure\ @fig-forwards shows that Scoring each minute holds steady through the mid-twenties, though a bit more often peaks between ages twenty-six and thirty. While assists generally run lower for forwards compared to guards, several small forwards past age twenty-five post notably higher figures. What stands apart is rebounding - power forwards grab boards far more frequently than small forwards, regardless of age, without narrowing much over time. That pattern hints role shapes rebound output stronger than aging does. Younger players show wider turnover swings early on; these tend to even out later, echoing trends seen earlier in guard data.
+Figure\ @fig-forwards shows that Scoring each minute holds steady through the mid-twenties, though a bit more often peaks between ages twenty-six and thirty. While assists generally run lower for forwards compared to guards, several small forwards past age twenty-five post notably higher figures. What stands apart is rebounding - power forwards grab boards far more frequently than small forwards, regardless of age, without narrowing much over time. That pattern hints role shapes rebound output stronger than aging does. Younger players show wider turnover swings early on; these tend to even out later, echoing trends seen earlier in guard data. Table\ @tbl-forward-summary summarizes the per-minute statistics and Table\ @tbl-forwards lists all 100 players.
+
+## Summary Statistics for Forwards
+
+```{r tbl-forward-summary}
+#| label: tbl-forward-summary
+#| tbl-cap: "Mean and standard deviation of per-minute statistics for the 100 forwards included in the analysis."
+forward_data |>
+  select(age, all_of(cols_to_normalize)) |>
+  summarise(across(everything(), list(Mean = mean, SD = sd))) |>
+  pivot_longer(
+    everything(),
+    names_to  = c("Variable", ".value"),
+    names_sep = "_"
+  ) |>
+  kable(booktabs = TRUE, digits = 4, linesep = "") |>
+  kable_styling(
+    latex_options = c("hold_position"),
+    font_size = 8
+  )
+```
 
 ## Table of Forwards Used in Analysis
 
 ```{r tbl-forwards}
+#| label: tbl-forwards
+#| tbl-cap: "Per-minute statistics for all 100 forwards (PF and SF) included in the analysis."
 forward_data |>
   kable(booktabs = TRUE) |>
   kable_styling(
@@ -225,11 +275,8 @@ center_data <- playerstats |>
   select(player, pos, age, mp, pts, ast, orb, drb, fgpercent, tov)
 
 # Normalize each statistic by minutes played
-for (colname in cols_to_normalize) {
-  center_data[[colname]] <- round(
-    center_data[[colname]] / center_data[["mp"]], 6
-  )
-}
+center_data <- center_data |>
+  mutate(across(all_of(cols_to_normalize), ~ round(. / mp, 6)))
 
 center_data <- head(center_data, 100)
 ```
@@ -251,11 +298,33 @@ make_position_figure(center_data)
 
 Looking at Figure @fig-centers, scoring rates for centers stay close together - most fall from 0.4 to 0.8 points each minute - with little shift across ages. Because creating shots isn’t typically their role, it follows that assist numbers sit below those of other positions. Unlike guards or forwards, these players pull down more rebounds, as seen when comparing with Figures @fig-guards and @fig-forwards; yet a small decline appears in defensive boards past the early years.
 
-By the third decade of life, mobility tends to decrease slightly. Although turnover rates begin elevated among new center players, they tend to decline with experience. This trend mirrors what is observed in back court and wing positions alike.
+By the third decade of life, mobility tends to decrease slightly. Although turnover rates begin elevated among new center players, they tend to decline with experience. This trend mirrors what is observed in back court and wing positions alike. Table\ @tbl-center-summary provides summary statistics and Table\ @tbl-centers lists all centers used.
+
+## Summary Statistics for Centers
+
+```{r tbl-center-summary}
+#| label: tbl-center-summary
+#| tbl-cap: "Mean and standard deviation of per-minute statistics for the centers included in the analysis."
+center_data |>
+  select(age, all_of(cols_to_normalize)) |>
+  summarise(across(everything(), list(Mean = mean, SD = sd))) |>
+  pivot_longer(
+    everything(),
+    names_to  = c("Variable", ".value"),
+    names_sep = "_"
+  ) |>
+  kable(booktabs = TRUE, digits = 4, linesep = "") |>
+  kable_styling(
+    latex_options = c("hold_position"),
+    font_size = 8
+  )
+```
 
 ## Table of Centers Used in Analysis
 
 ```{r tbl-centers}
+#| label: tbl-centers
+#| tbl-cap: "Per-minute statistics for all centers (C) included in the analysis."
 center_data |>
   kable(booktabs = TRUE) |>
   kable_styling(
@@ -381,13 +450,14 @@ library(kableExtra)
 # Primary Authors: Rishvanth Amsaraj, Vishnu Bombesetti, Samarth Puri
 # Reviewer: All team members
 make_panel <- function(df, y_var, y_label, panel_title) {
-  ggplot(df, aes(x = age, y = .data[[y_var]], color = pos)) +
+  ggplot(df, aes(x = age, y = .data[[y_var]], color = pos, shape = pos)) +
     geom_point(alpha = 0.75, size = 1.6) +
     labs(
       title  = panel_title,
       x      = "Age",
       y      = y_label,
-      color  = "Position"
+      color  = "Position",
+      shape  = "Position"
     ) +
     theme_minimal(base_size = 9) +
     theme(
@@ -421,23 +491,39 @@ make_position_figure <- function(df) {
 # ==========================================================
 playerstats <- read.csv("nba-player-stats-2021.csv")
 
+# Check structure and dimensions immediately after import
+glimpse(playerstats)
+
 # Filter to guards with > 500 mp; select analysis columns
 guard_data <- playerstats |>
   filter(pos == "PG" | pos == "SG") |>
   filter(mp > 500) |>
   select(player, pos, age, mp, pts, ast, orb, drb, fgpercent, tov)
 
-# Normalize each statistic by minutes played
+# Normalize each statistic by minutes played using across()
 cols_to_normalize <- c("pts", "ast", "orb", "drb", "fgpercent", "tov")
-for (colname in cols_to_normalize) {
-  guard_data[[colname]] <- round(
-    guard_data[[colname]] / guard_data[["mp"]], 6
-  )
-}
+guard_data <- guard_data |>
+  mutate(across(all_of(cols_to_normalize), ~ round(. / mp, 6)))
 guard_data <- head(guard_data, 100)
 
 make_position_figure(guard_data)
 
+# Summary statistics (mean and SD per variable)
+guard_data |>
+  select(age, all_of(cols_to_normalize)) |>
+  summarise(across(everything(), list(Mean = mean, SD = sd))) |>
+  pivot_longer(
+    everything(),
+    names_to  = c("Variable", ".value"),
+    names_sep = "_"
+  ) |>
+  kable(booktabs = TRUE, digits = 4, linesep = "") |>
+  kable_styling(
+    latex_options = c("hold_position"),
+    font_size = 8
+  )
+
+# Full player-level data table
 guard_data |>
   kable(booktabs = TRUE) |>
   kable_styling(
@@ -456,16 +542,29 @@ forward_data <- playerstats |>
   filter(mp > 500) |>
   select(player, pos, age, mp, pts, ast, orb, drb, fgpercent, tov)
 
-# Normalize each statistic by minutes played
-for (colname in cols_to_normalize) {
-  forward_data[[colname]] <- round(
-    forward_data[[colname]] / forward_data[["mp"]], 6
-  )
-}
+# Normalize each statistic by minutes played using across()
+forward_data <- forward_data |>
+  mutate(across(all_of(cols_to_normalize), ~ round(. / mp, 6)))
 forward_data <- head(forward_data, 100)
 
 make_position_figure(forward_data)
 
+# Summary statistics (mean and SD per variable)
+forward_data |>
+  select(age, all_of(cols_to_normalize)) |>
+  summarise(across(everything(), list(Mean = mean, SD = sd))) |>
+  pivot_longer(
+    everything(),
+    names_to  = c("Variable", ".value"),
+    names_sep = "_"
+  ) |>
+  kable(booktabs = TRUE, digits = 4, linesep = "") |>
+  kable_styling(
+    latex_options = c("hold_position"),
+    font_size = 8
+  )
+
+# Full player-level data table
 forward_data |>
   kable(booktabs = TRUE) |>
   kable_styling(
@@ -484,16 +583,29 @@ center_data <- playerstats |>
   filter(mp > 500) |>
   select(player, pos, age, mp, pts, ast, orb, drb, fgpercent, tov)
 
-# Normalize each statistic by minutes played
-for (colname in cols_to_normalize) {
-  center_data[[colname]] <- round(
-    center_data[[colname]] / center_data[["mp"]], 6
-  )
-}
+# Normalize each statistic by minutes played using across()
+center_data <- center_data |>
+  mutate(across(all_of(cols_to_normalize), ~ round(. / mp, 6)))
 center_data <- head(center_data, 100)
 
 make_position_figure(center_data)
 
+# Summary statistics (mean and SD per variable)
+center_data |>
+  select(age, all_of(cols_to_normalize)) |>
+  summarise(across(everything(), list(Mean = mean, SD = sd))) |>
+  pivot_longer(
+    everything(),
+    names_to  = c("Variable", ".value"),
+    names_sep = "_"
+  ) |>
+  kable(booktabs = TRUE, digits = 4, linesep = "") |>
+  kable_styling(
+    latex_options = c("hold_position"),
+    font_size = 8
+  )
+
+# Full player-level data table
 center_data |>
   kable(booktabs = TRUE) |>
   kable_styling(
