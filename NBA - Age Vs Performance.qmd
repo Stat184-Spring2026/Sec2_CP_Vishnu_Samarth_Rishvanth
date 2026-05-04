@@ -1,6 +1,6 @@
 ---
 title: "NBA Age vs. Performance: A Cross-Position Analysis"
-author: "Rishvanth Amsaraj, Vishnu Bombesetti, Samarth Puri"
+author: "Rishvanth Amsaraj, Vishnu Bommisetty, Samarth Puri"
 date: "2026-04-28"
 format:
   pdf:
@@ -19,7 +19,7 @@ execute:
 
 ```{r setup}
 # Style Guide: Tidyverse Style Guide (https://style.tidyverse.org/)
-# Primary Authors: Rishvanth Amsaraj, Vishnu Bombesetti, Samarth Puri
+# Primary Authors: Rishvanth Amsaraj, Vishnu Bommisetty, Samarth Puri
 # Reviewer: All team members
 
 library(tidyverse)
@@ -197,7 +197,7 @@ guard_data |>
 # Forwards: Power Forwards and Small Forwards
 
 ```{r forwards-data}
-# Primary Author: Rishvanth Amsaraj | Reviewer: Vishnu Bombesetti
+# Primary Author: Rishvanth Amsaraj | Reviewer: Vishnu Bommisetty
 
 # Filter to PF and SF with > 500 minutes; select analysis columns
 forward_data <- playerstats |>
@@ -266,7 +266,7 @@ forward_data |>
 # Centers
 
 ```{r centers-data}
-# Primary Author: Vishnu Bombesetti | Reviewer: Rishvanth Amsaraj
+# Primary Author: Vishnu Bommisetty | Reviewer: Rishvanth Amsaraj
 
 # Filter to Centers with > 500 minutes; select analysis columns
 center_data <- playerstats |>
@@ -359,7 +359,7 @@ Putting the code into the appendix helped keep the main section clear. What resu
 figure), combining all three position files into the final QMD, patchwork
 figure layout, shared helper functions, narrative text, and PCIP documentation.
 
-**Vishnu Bombesetti** --- Centers analysis (data filtering, normalization, and
+**Vishnu Bommisetty** --- Centers analysis (data filtering, normalization, and
 figure), and the repository README.md file.
 
 **Samarth Puri** --- Guards analysis (data filtering, normalization, and
@@ -447,7 +447,7 @@ library(knitr)
 library(kableExtra)
 
 # ── Helper: single scatter panel ──────────────────────────
-# Primary Authors: Rishvanth Amsaraj, Vishnu Bombesetti, Samarth Puri
+# Primary Authors: Rishvanth Amsaraj, Vishnu Bommisetty, Samarth Puri
 # Reviewer: All team members
 make_panel <- function(df, y_var, y_label, panel_title) {
   ggplot(df, aes(x = age, y = .data[[y_var]], color = pos, shape = pos)) +
@@ -470,7 +470,7 @@ make_panel <- function(df, y_var, y_label, panel_title) {
 }
 
 # ── Helper: 2x3 patchwork figure for a position group ─────
-# Primary Authors: Rishvanth Amsaraj, Vishnu Bombesetti, Samarth Puri
+# Primary Authors: Rishvanth Amsaraj, Vishnu Bommisetty, Samarth Puri
 # Reviewer: All team members
 make_position_figure <- function(df) {
   p1 <- make_panel(df, "pts",       "Points / Min",        "Points")
@@ -533,7 +533,7 @@ guard_data |>
 
 # ==========================================================
 # Section 4: Forwards (PF and SF)
-# Primary Author: Rishvanth Amsaraj | Reviewer: Vishnu Bombesetti
+# Primary Author: Rishvanth Amsaraj | Reviewer: Vishnu Bommisetty
 # ==========================================================
 
 # Filter to forwards with > 500 mp; select analysis columns
@@ -574,7 +574,7 @@ forward_data |>
 
 # ==========================================================
 # Section 5: Centers (C)
-# Primary Author: Vishnu Bombesetti | Reviewer: Rishvanth Amsaraj
+# Primary Author: Vishnu Bommisetty | Reviewer: Rishvanth Amsaraj
 # ==========================================================
 
 # Filter to centers with > 500 mp; select analysis columns
